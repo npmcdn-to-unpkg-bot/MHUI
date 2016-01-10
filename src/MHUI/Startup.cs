@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNet.Builder;
+﻿using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Data.Entity;
@@ -11,7 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MHUI.Models;
 using MHUI.Services;
-using Microsoft.AspNet.Identity;
+using System;
+using Microsoft.AspNet.FileProviders;
+using JavaScriptEngineSwitcher.Core;
+using System.Linq;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace MHUI
 {
@@ -54,8 +54,7 @@ namespace MHUI
                 opt.Password.RequireUppercase = false;
                 opt.Password.RequireLowercase = false;
                 opt.User.AllowedUserNameCharacters = opt.User.AllowedUserNameCharacters + '+';
-            }
-                )
+            })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -64,6 +63,36 @@ namespace MHUI
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
+
+            services.AddSingleton(CreateJSEngine);
+
+        }
+
+        private static JSPool.IJsPool CreateJSEngine(IServiceProvider provider)
+        {
+            var ieConfig = new JavaScriptEngineSwitcher.Msie.Configuration.MsieConfiguration
+            {
+                EngineMode = JavaScriptEngineSwitcher.Msie.JsEngineMode.ChakraEdgeJsRt
+                
+            };
+            var appEnv = provider.GetRequiredService<IApplicationEnvironment>();
+            var fileProvider = new PhysicalFileProvider(appEnv.ApplicationBasePath);
+            var jsdir = fileProvider.GetDirectoryContents("wwwroot/js");
+            var jsPath = jsdir.First(f => f.Name == "server.js").PhysicalPath;
+
+            var poolConfig = new JSPool.JsPoolConfig();
+            poolConfig.MaxUsagesPerEngine = 20;
+            poolConfig.StartEngines = 2;
+            poolConfig.EngineFactory = () => new JavaScriptEngineSwitcher.Msie.MsieJsEngine(ieConfig);
+            poolConfig.Initializer = engine => InitialiseJSRuntime(jsPath, engine);
+            poolConfig.WatchFiles = new[] { jsPath };
+            var jspool = new JSPool.JsPool(poolConfig);
+            return jspool;
+        }
+
+        public static void InitialiseJSRuntime(string jsPath, IJsEngine engine)
+        {
+            engine.ExecuteFile(jsPath);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -94,9 +123,9 @@ namespace MHUI
                 }
                 catch { }
             }
-
+            
             app.UseIISPlatformHandler(options => options.AuthenticationDescriptions.Clear());
-
+            
             app.UseStaticFiles();
 
             app.UseIdentity();
@@ -114,6 +143,8 @@ namespace MHUI
 
             var db = app.ApplicationServices.GetRequiredService<ApplicationDbContext>();
             db.Database.EnsureCreated();
+
+
         }
 
         // Entry point for the application.
