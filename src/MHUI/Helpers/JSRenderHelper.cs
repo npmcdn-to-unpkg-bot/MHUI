@@ -15,8 +15,9 @@ namespace MHUI.Helpers
             var pool = appServices.GetRequiredService<IJsPool>();
             var jsModel = JsonConvert.SerializeObject(model);
 
-            
-            var result = pool.GetEngine().Evaluate($"pages.{entryPoint}({jsModel})") as string;
+
+            var currentPath = helper.ViewContext.HttpContext.Request.Path.Value;
+            var result = pool.GetEngine().Evaluate($"pages.{entryPoint}('{jsModel}', '{currentPath}')") as string;
             if (result == null)
             {
                 var logger = appServices.GetRequiredService<ILoggerFactory>().CreateLogger("JSRender");
@@ -27,6 +28,7 @@ namespace MHUI.Helpers
 
             int reactId = helper.ViewContext.ViewBag.REACT__ViewId ?? 1;
             helper.ViewContext.ViewBag.REACT__ViewId = reactId + 1;
+
 
             var resultScript = $"<script src=\"/js/libs.js\"></script><script src=\"/js/{bundle}.js\" type=\"text/javascript\"></script>";
             resultScript += $"<script type=\"text/javascript\" defer>page.{entryPoint}('component-{reactId}')</script>";

@@ -15,35 +15,37 @@ function setupServerRender(model: string): { html: string, model: string } {
 
 export function renderIndex(model, url) {
     const { routes: routes, store: store} = index(model);
+    var result;
     try {
         match({ routes, location: url }, (error, redirectLocation, renderProps) => {
             if (error) {
-                return JSON.stringify({
+                result = {
                     html: "500 " + error.message,
                     result: 500
 
-                });
+                };
             } else if (redirectLocation) {
-                return JSON.stringify({
+                result = ({
                     redirect: redirectLocation,
                     result: 302
                 });
             } else if (renderProps) {
-                return JSON.stringify({
+                result = ({
                     html: renderToString(<Provider store={store}><RoutingContext {...renderProps}/></Provider>),
                     result: 200
                 });
             } else {
-                return JSON.stringify({
+                result = ({
                     result: 404
                 })
             }
         });
 
     } catch (e) {
-        return JSON.stringify({
+        result = ({
             html: `<pre>${e.toString()}</pre>`,
             result: 500
         });
     }
+    return JSON.stringify(result);
 }
