@@ -1,4 +1,4 @@
-﻿/// <binding Clean='clean' />
+﻿/// <binding AfterBuild='compile' Clean='clean' />
 "use strict";
 
 var gulp = require("gulp"),
@@ -34,7 +34,7 @@ paths.concatReactPath = paths.webroot + "js";
 paths.jsLibs = paths.srcroot + "/React/libs.js";
 paths.minJsLibs = paths.webroot + "js/";
 
-var commonLibraries = ['react', 'react-dom', 'domready'];
+var commonLibraries = ['react', 'react-dom', 'domready', 'redux', 'immutable', 'react-redux', 'react-router'];
 
 gulp.task("clean:js", function (cb) {
     rimraf(paths.concatJsDest, cb);
@@ -90,7 +90,7 @@ gulp.task("compile:libs", function () {
     .pipe(gulp.dest(paths.minJsLibs));
 });
 
-gulp.task("compile:client", ['compile:tsx'], function () {
+gulp.task("compile:client", ['compile:libs', 'compile:tsx'], function () {
     return browserify(paths.reactCompiledOutput + '/Pages/index.js', {
         standalone: 'page'
     })
@@ -99,5 +99,7 @@ gulp.task("compile:client", ['compile:tsx'], function () {
     .pipe(source("index.js"))
     .pipe(gulp.dest(paths.minJsLibs));
 });
+
+gulp.task("compile", ['compile:server', 'compile:client']);
 
 gulp.task("min", ["min:js", "min:css"]);

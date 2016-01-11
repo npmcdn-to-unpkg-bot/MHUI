@@ -75,10 +75,10 @@ namespace MHUI
                 EngineMode = JavaScriptEngineSwitcher.Msie.JsEngineMode.ChakraEdgeJsRt
                 
             };
+
             var appEnv = provider.GetRequiredService<IApplicationEnvironment>();
             var fileProvider = new PhysicalFileProvider(appEnv.ApplicationBasePath);
-            var jsdir = fileProvider.GetDirectoryContents("wwwroot/js");
-            var jsPath = jsdir.First(f => f.Name == "server.js").PhysicalPath;
+            var jsPath = fileProvider.GetFileInfo("wwwroot/js/server.js").PhysicalPath;
 
             var poolConfig = new JSPool.JsPoolConfig();
             poolConfig.MaxUsagesPerEngine = 20;
@@ -86,8 +86,7 @@ namespace MHUI
             poolConfig.EngineFactory = () => new JavaScriptEngineSwitcher.Msie.MsieJsEngine(ieConfig);
             poolConfig.Initializer = engine => InitialiseJSRuntime(jsPath, engine);
             poolConfig.WatchFiles = new[] { jsPath };
-            var jspool = new JSPool.JsPool(poolConfig);
-            return jspool;
+            return new JSPool.JsPool(poolConfig);
         }
 
         public static void InitialiseJSRuntime(string jsPath, IJsEngine engine)
