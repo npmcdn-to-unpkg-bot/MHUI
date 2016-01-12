@@ -26,6 +26,17 @@ namespace MHUI.Helpers
             }
             var resultObject = JsonConvert.DeserializeObject<dynamic>(result);
 
+            var resultCode = (int)resultObject.result;
+
+            switch (resultCode)
+            {
+                case 500:
+                    throw new System.Exception(resultObject.message);
+                case 404:
+                    throw new System.Exception("404");
+                case 302:
+                    throw new System.Exception("redirect");
+            }
             int reactId = helper.ViewContext.ViewBag.REACT__ViewId ?? 1;
             helper.ViewContext.ViewBag.REACT__ViewId = reactId + 1;
 

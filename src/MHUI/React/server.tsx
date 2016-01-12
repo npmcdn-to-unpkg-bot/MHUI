@@ -1,4 +1,4 @@
-﻿import index from "./Components/index";
+﻿import renderIndex from "./Pages/index";
 import * as React from 'react';
 import { renderToString } from "react-dom/server";
 import { match, RoutingContext } from "react-router";
@@ -14,7 +14,7 @@ function setupServerRender(model: string): { html: string, model: string } {
 }*/
 
 export function renderIndex(model, url) {
-    const { routes: routes, store: store} = index(model);
+    const { routes: routes, store: store} = renderIndex(model);
     var result;
     try {
         match({ routes, location: url }, (error, redirectLocation, renderProps) => {

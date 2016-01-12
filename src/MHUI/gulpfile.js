@@ -26,7 +26,7 @@ paths.concatCssDest = paths.webroot + "css/site.min.css";
 
 paths.reactJs = paths.srcroot + "/React/**/*";
 paths.reactCompiledOutput = paths.srcroot + "/ReactCompiled";
-paths.reactCompiledPages = paths.srcroot + "/ReactCompiled/Pages/*.js";
+paths.reactCompiledPages = paths.srcroot + "/ReactCompiled/Bundles/*.js";
 
 paths.reactServerSide = paths.srcroot + "/ReactCompiled/server.js";
 paths.concatReactPath = paths.webroot + "js";
@@ -91,7 +91,7 @@ gulp.task("compile:libs", function () {
 });
 
 gulp.task("compile:client", ['compile:libs', 'compile:tsx'], function () {
-    return browserify(paths.reactCompiledOutput + '/Pages/index.js', {
+    return browserify(paths.reactCompiledOutput + '/Bundles/index.js', {
         standalone: 'page'
     })
     .external(commonLibraries)
