@@ -7,4 +7,5 @@
 /// <reference path="react-redux/react-redux.d.ts" />
 /// <reference path="react-router/history.d.ts" />
 /// <reference path="react-router/react-router.d.ts" />
+/// <reference path="react-bootstrap/react-bootstrap.d.ts" />
 

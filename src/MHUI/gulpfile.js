@@ -100,6 +100,20 @@ gulp.task("compile:client", ['compile:libs', 'compile:tsx'], function () {
     .pipe(gulp.dest(paths.minJsLibs));
 });
 
+gulp.task("bootstrap:css", function () {
+    return gulp.src([paths.srcroot + '/node_modules/bootstrap/dist/css/bootstrap.min.css'])
+    .pipe(gulp.dest(paths.webroot + "/css"));
+});
+
+gulp.task("bootstrap:fonts", function () {
+
+    return gulp.src([paths.srcroot + '/node_modules/bootstrap/dist/fonts/*'])
+    .pipe(gulp.dest(paths.webroot + "/fonts"));
+
+})
+
+gulp.task("bootstrap", ['bootstrap:css', 'bootstrap:fonts']);
+
 gulp.task("compile", ['compile:server', 'compile:client']);
 
 gulp.task("min", ["min:js", "min:css"]);

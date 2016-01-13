@@ -22,6 +22,7 @@
   </ItemGroup>
   <ItemGroup>
     <DnxInvisibleFolder Include="ReactCompiled\" />
+    <DnxInvisibleFolder Include="React\Components\Common\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\DNX\Microsoft.DNX.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>
